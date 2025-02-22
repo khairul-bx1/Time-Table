@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Table</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .timer {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            color: #fff;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .subject-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .subject-card h2 {
+            color: #fff;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .subject-card a {
+            display: block;
+            text-align: center;
+            color: #2ecc71;
+            text-decoration: none;
+            font-size: 1rem;
+            margin-top: 1rem;
+            transition: color 0.2s ease;
+        }
+
+        .subject-card a:hover {
+            color: #27ae60;
+        }
+
+        .topic-list {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .topic-item {
+            margin: 0.75rem 0;
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .topic-item.class-topic {
+            background: rgba(52, 152, 219, 0.6); /* Blue for Class Topics */
+        }
+
+        .topic-item.class-test {
+            background: rgba(241, 196, 15, 0.6); /* Yellow for Class Test */
+        }
+
+        .topic-item.mid-exam {
+            background: rgba(155, 89, 182, 0.6); /* Purple for Mid Exam */
+        }
+
+        .topic-item.final-exam {
+            background: rgba(231, 76, 60, 0.6); /* Red for Final Exam */
+        }
+
+        .topic-item:hover {
+            transform: translateX(5px);
+        }
+
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ff6b81;
+        }
+
+        .add-topic-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .add-topic-input {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            transition: background 0.2s ease;
+        }
+
+        .add-topic-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .add-topic-input:focus {
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+        }
+
+        .exam-type-select {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            transition: background 0.2s ease;
+        }
+
+        .exam-type-select:focus {
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+        }
+
+        .add-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timer {
+                font-size: 2rem;
+            }
+
+            .add-topic-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="timer" id="clock">00:00:00</div>
+        <div class="subjects-grid">
+            <div class="subject-card" style="background: rgba(52, 152, 219, 0.2);">
+                <h2>CSE</h2>
+                <a href="learned.html?subject=cse">What I Learned Today</a>
+                <ul class="topic-list" id="cse-topics"></ul>
+                <form class="add-topic-form" onsubmit="addClassTopic(event, 'cse-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add class topic..." required>
+                    <button type="submit" class="add-btn">Add Class</button>
+                </form>
+                <form class="add-topic-form" onsubmit="addExamTopic(event, 'cse-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add exam topic..." required>
+                    <select class="exam-type-select" required>
+                        <option value="Class Test">Class Test</option>
+                        <option value="Mid Exam">Mid Exam</option>
+                        <option value="Final Exam">Final Exam</option>
+                    </select>
+                    <button type="submit" class="add-btn">Add Exam</button>
+                </form>
+            </div>
+
+            <div class="subject-card" style="background: rgba(155, 89, 182, 0.2);">
+                <h2>Physics</h2>
+                <a href="learned.html?subject=physics">What I Learned Today</a>
+                <ul class="topic-list" id="physics-topics"></ul>
+                <form class="add-topic-form" onsubmit="addClassTopic(event, 'physics-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add class topic..." required>
+                    <button type="submit" class="add-btn">Add Class</button>
+                </form>
+                <form class="add-topic-form" onsubmit="addExamTopic(event, 'physics-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add exam topic..." required>
+                    <select class="exam-type-select" required>
+                        <option value="Class Test">Class Test</option>
+                        <option value="Mid Exam">Mid Exam</option>
+                        <option value="Final Exam">Final Exam</option>
+                    </select>
+                    <button type="submit" class="add-btn">Add Exam</button>
+                </form>
+            </div>
+
+            <div class="subject-card" style="background: rgba(46, 204, 113, 0.2);">
+                <h2>Math</h2>
+                <a href="learned.html?subject=math">What I Learned Today</a>
+                <ul class="topic-list" id="math-topics"></ul>
+                <form class="add-topic-form" onsubmit="addClassTopic(event, 'math-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add class topic..." required>
+                    <button type="submit" class="add-btn">Add Class</button>
+                </form>
+                <form class="add-topic-form" onsubmit="addExamTopic(event, 'math-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add exam topic..." required>
+                    <select class="exam-type-select" required>
+                        <option value="Class Test">Class Test</option>
+                        <option value="Mid Exam">Mid Exam</option>
+                        <option value="Final Exam">Final Exam</option>
+                    </select>
+                    <button type="submit" class="add-btn">Add Exam</button>
+                </form>
+            </div>
+
+            <div class="subject-card" style="background: rgba(231, 76, 60, 0.2);">
+                <h2>English</h2>
+                <a href="learned.html?subject=english">What I Learned Today</a>
+                <ul class="topic-list" id="english-topics"></ul>
+                <form class="add-topic-form" onsubmit="addClassTopic(event, 'english-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add class topic..." required>
+                    <button type="submit" class="add-btn">Add Class</button>
+                </form>
+                <form class="add-topic-form" onsubmit="addExamTopic(event, 'english-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add exam topic..." required>
+                    <select class="exam-type-select" required>
+                        <option value="Class Test">Class Test</option>
+                        <option value="Mid Exam">Mid Exam</option>
+                        <option value="Final Exam">Final Exam</option>
+                    </select>
+                    <button type="submit" class="add-btn">Add Exam</button>
+                </form>
+            </div>
+
+            <div class="subject-card" style="background: rgba(241, 196, 15, 0.2);">
+                <h2>GED</h2>
+                <a href="learned.html?subject=ged">What I Learned Today</a>
+                <ul class="topic-list" id="ged-topics"></ul>
+                <form class="add-topic-form" onsubmit="addClassTopic(event, 'ged-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add class topic..." required>
+                    <button type="submit" class="add-btn">Add Class</button>
+                </form>
+                <form class="add-topic-form" onsubmit="addExamTopic(event, 'ged-topics')">
+                    <input type="text" class="add-topic-input" placeholder="Add exam topic..." required>
+                    <select class="exam-type-select" required>
+                        <option value="Class Test">Class Test</option>
+                        <option value="Mid Exam">Mid Exam</option>
+                        <option value="Final Exam">Final Exam</option>
+                    </select>
+                    <button type="submit" class="add-btn">Add Exam</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update clock
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Add class topic functionality
+        function addClassTopic(event, listId) {
+            event.preventDefault();
+            const input = event.target.querySelector('input');
+            const topic = input.value.trim();
+            
+            if (topic) {
+                const list = document.getElementById(listId);
+                const li = document.createElement('li');
+                li.className = 'topic-item class-topic';
+                li.innerHTML = `
+                    ${topic}
+                    <button class="delete-btn" onclick="this.parentElement.remove()">Delete</button>
+                `;
+                list.appendChild(li);
+                input.value = '';
+                saveTopics();
+            }
+        }
+
+        // Add exam topic functionality
+        function addExamTopic(event, listId) {
+            event.preventDefault();
+            const input = event.target.querySelector('input');
+            const select = event.target.querySelector('select');
+            const topic = input.value.trim();
+            const examType = select.value;
+            
+            if (topic) {
+                const list = document.getElementById(listId);
+                const li = document.createElement('li');
+                li.className = `topic-item ${examType.toLowerCase().replace(' ', '-')}`;
+                li.innerHTML = `
+                    ${topic} (${examType})
+                    <button class="delete-btn" onclick="this.parentElement.remove()">Delete</button>
+                `;
+                list.appendChild(li);
+                input.value = '';
+                saveTopics();
+            }
+        }
+
+        // Save topics to localStorage
+        function saveTopics() {
+            const subjects = ['cse', 'physics', 'math', 'english', 'ged'];
+            subjects.forEach(subject => {
+                const list = document.getElementById(`${subject}-topics`);
+                const topics = Array.from(list.children).map(li => ({
+                    text: li.textContent.trim().replace('Delete', ''),
+                    className: li.className
+                }));
+                localStorage.setItem(`${subject}-topics`, JSON.stringify(topics));
+            });
+        }
+
+        // Load saved topics from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const subjects = ['cse', 'physics', 'math', 'english', 'ged'];
+            subjects.forEach(subject => {
+                const savedTopics = JSON.parse(localStorage.getItem(`${subject}-topics`) || '[]');
+                const list = document.getElementById(`${subject}-topics`);
+                savedTopics.forEach(topic => {
+                    const li = document.createElement('li');
+                    li.className = topic.className;
+                    li.innerHTML = `
+                        ${topic.text}
+                        <button class="delete-btn" onclick="this.parentElement.remove()">Delete</button>
+                    `;
+                    list.appendChild(li);
+                });
+            });
+        });
+
+        // Save topics to localStorage when changes occur
+        window.addEventListener('beforeunload', saveTopics);
+    </script>
+</body>
+</html>
